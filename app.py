@@ -186,7 +186,7 @@ def callback():
     login_user(user)
     session['name'] = users_name
     session['id'] = unique_id
-    return render_template('index.html')
+    return redirect(url_for('index'))
 
 
 @app.route("/login")
