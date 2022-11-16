@@ -50,6 +50,10 @@ class users(db.Model, UserMixin):
     email = db.Column(db.String(500))
     name = db.Column(db.String(500))
 
+    def has_picks(self):
+        has_pick = picks.query.filter_by(user_id=self._id).count()
+        return has_pick
+
     def get_id(self):
         return self._id
 
@@ -108,8 +112,6 @@ class groups(db.Model):
     team_2_id = db.Column(db.Integer)
     team_3_id = db.Column(db.Integer)
     team_4_id = db.Column(db.Integer)
-
-
 
     def get_first_seed(self, user_id, group_id):
         first_pick = picks.query.filter_by(user_id=user_id, group_id=group_id).first()
@@ -203,7 +205,13 @@ def index():
     if current_user.is_authenticated:
         user_email = session['name']
         group_list = groups.query.all()
-        return render_template('index.html', user_email=user_email, group_list=group_list)
+        players_with_picks = users.query.filter_by().all()
+        players = []
+        for player in players_with_picks:
+            if player.has_picks() > 0:
+                player_tuple = (player.name, player.has_picks())
+                players.append(player_tuple)
+        return render_template('index.html', user_email=user_email, group_list=group_list, players=players)
     else:
         return '<a class="button" href="/login">Google Login</a>'
 

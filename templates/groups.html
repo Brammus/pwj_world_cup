@@ -4,14 +4,14 @@
 <div class="container">
     <div class="row">
         {%for item in group_list%}
-        <div class="col">
+        <div class="col-3">
             <table class="table">
-                <tbody>
-                <tr>
-                    <td>
+                <thead>
+                    <th>
                         Group: {{item.group_name}}
-                    </td>
-                </tr>
+                    </th>
+                </thead>
+                <tbody>
                 <tr>
                     <td>
                         {{item.get_country(item.team_1_id)}}

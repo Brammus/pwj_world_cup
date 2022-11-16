@@ -3,15 +3,40 @@
 {% block content %}
 <div class="container">
     <div class="row">
+        <div class="col"><h3>Players that have picked at least 1 team:</h3></div>
+    </div>
+    <table class="table">
+        <thead>
+        <th>
+            Player
+        </th>
+        <th>
+            Picks
+        </th>
+        </thead>
+        <tbody>
+        {%for player in players%}
+        <tr>
+            <td>
+                {{player[0]}}
+            </td>
+            <td>
+                {{player[1]}}
+            </td>
+        </tr>
+        {%endfor%}
+        </tbody>
+    </table>
+    <div class="row">
         {%for item in group_list%}
-        <div class="col">
+        <div class="col-3">
             <table class="table">
-                <tbody>
-                <tr>
-                    <td>
+                <thead>
+                    <th>
                         Group: {{item.group_name}}
-                    </td>
-                </tr>
+                    </th>
+                </thead>
+                <tbody>
                 <tr>
                     <td>
                         {{item.get_country(item.team_1_id)}}
@@ -38,4 +63,5 @@
         {%endfor%}
     </div>
 </div>
+
 {% endblock %}
