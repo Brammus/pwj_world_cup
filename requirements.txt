@@ -5,3 +5,4 @@ psycopg2
 oauthlib
 requests
 flask_sqlalchemy
+gunicorn
