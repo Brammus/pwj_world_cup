@@ -109,6 +109,8 @@ class groups(db.Model):
     team_3_id = db.Column(db.Integer)
     team_4_id = db.Column(db.Integer)
 
+
+
     def get_first_seed(self, user_id, group_id):
         first_pick = picks.query.filter_by(user_id=user_id, group_id=group_id).first()
         if first_pick:
@@ -228,17 +230,17 @@ def all_picks():
             first_seed = request.form['first_seed']
             second_seed = request.form['second_seed']
             if first_seed != '' and second_seed != '':
-                first_seed_id = countries.query.filter_by(name=first_seed).first()._id
-                second_seed_id = countries.query.filter_by(name=second_seed).first()._id
-                if first_seed and second_seed:
-                    old_pick = picks.query.filter_by(user_id=user_id, group_id=group_id).first()
-                    if old_pick:
-                        old_pick.first_seed_id = first_seed_id
-                        old_pick.second_seed_id = second_seed_id
-                    else:
-                        new_pick = picks(first_seed_id=first_seed_id, second_seed_id=second_seed_id, user_id=user_id, group_id=group_id)
-                        db.session.add(new_pick)
-                    db.session.commit()
+                #first_seed_id = countries.query.filter_by(name=first_seed).first()._id
+                #second_seed_id = countries.query.filter_by(name=second_seed).first()._id
+                #if first_seed and second_seed:
+                old_pick = picks.query.filter_by(user_id=user_id, group_id=group_id).first()
+                if old_pick:
+                    old_pick.first_seed_id = first_seed
+                    old_pick.second_seed_id = second_seed
+                else:
+                    new_pick = picks(first_seed_id=first_seed, second_seed_id=second_seed, user_id=user_id, group_id=group_id)
+                    db.session.add(new_pick)
+                db.session.commit()
         return render_template('your_pick.html', user_email=user_email, user_id=user_id, pick_list=pick_list, group_list=group_list)
     else:
         return '<a class="button" href="/login">Google Login</a>'
