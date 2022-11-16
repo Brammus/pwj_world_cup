@@ -1,5 +1,5 @@
 from datetime import datetime, timedelta
-from flask import Flask, render_template, request, redirect, url_for
+from flask import Flask, render_template, request, redirect, url_for, session
 from flask_login import (
     LoginManager,
     current_user,
@@ -46,7 +46,7 @@ def get_google_provider_cfg():
 
 # models
 class users(db.Model, UserMixin):
-    _id = db.Column("id", db.Integer, primary_key=True)
+    _id = db.Column("id", db.String(500), primary_key=True)
     email = db.Column(db.String(500))
     name = db.Column(db.String(500))
 
@@ -62,25 +62,27 @@ class users(db.Model, UserMixin):
 class countries(db.Model):
     _id = db.Column("id", db.Integer, primary_key=True)
     name = db.Column(db.String(500))
-    group_id = db.Column(db.Integer)
 
-    def __init__(self, _id, name, group_id):
+    def __init__(self, _id, name):
         self._id = _id
         self.name = name
-        self.group_id = group_id
 
 
 class picks(db.Model):
     _id = db.Column("id", db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer)
+    user_id = db.Column(db.String(500))
+    group_id = db.Column(db.Integer)
     first_seed_id = db.Column(db.Integer)
     second_seed_id = db.Column(db.Integer)
 
-    def __init__(self, _id, user_id, first_seed_id, second_seed_id):
-        self._id = _id
+    def country(self, country_id):
+        return countries.query.filter_by(_id=country_id).first().name
+
+    def __init__(self, user_id, first_seed_id, second_seed_id, group_id):
         self.user_id = user_id
         self.first_seed_id = first_seed_id
         self.second_seed_id = second_seed_id
+        self.group_id = group_id
 
 
 class matches(db.Model):
@@ -91,8 +93,7 @@ class matches(db.Model):
     team_1_goals = db.Column(db.Integer)
     team_2_goals = db.Column(db.Integer)
 
-    def __init__(self, _id, match_date, team_1_id, team_2_id, team_1_goals, team_2_goals):
-        self._id = _id
+    def __init__(self, match_date, team_1_id, team_2_id, team_1_goals, team_2_goals):
         self.match_date = match_date
         self.team_1_id = team_1_id
         self.team_2_id = team_2_id
@@ -108,8 +109,24 @@ class groups(db.Model):
     team_3_id = db.Column(db.Integer)
     team_4_id = db.Column(db.Integer)
 
-    def __init__(self, _id, group_name, team_1_id, team_2_id, team_3_id, team_4_id):
-        self._id = _id
+    def get_first_seed(self, user_id, group_id):
+        first_pick = picks.query.filter_by(user_id=user_id, group_id=group_id).first()
+        if first_pick:
+            return countries.query.filter_by(_id=first_pick.first_seed_id).first().name
+        else:
+            return None
+
+    def get_second_seed(self, user_id, group_id):
+        second_pick = picks.query.filter_by(user_id=user_id, group_id=group_id).first()
+        if second_pick:
+            return countries.query.filter_by(_id=second_pick.second_seed_id).first().name
+        else:
+            return None
+
+    def get_country(self, team_id):
+        return countries.query.filter_by(_id=team_id).first().name
+
+    def __init__(self, group_name, team_1_id, team_2_id, team_3_id, team_4_id):
         self.group_name = group_name
         self.team_1_id = team_1_id
         self.team_2_id = team_2_id
@@ -165,7 +182,8 @@ def callback():
         db.session.add(user)
         db.session.commit()
     login_user(user)
-
+    session['name'] = users_name
+    session['id'] = unique_id
     return render_template('index.html')
 
 
@@ -179,9 +197,49 @@ def login():
 
 
 @app.route("/", methods=['POST', 'GET'])
-def home():
+def index():
     if current_user.is_authenticated:
-        return render_template('index.html')
+        user_email = session['name']
+        group_list = groups.query.all()
+        return render_template('index.html', user_email=user_email, group_list=group_list)
+    else:
+        return '<a class="button" href="/login">Google Login</a>'
+
+
+@app.route("/groups")
+def all_groups():
+    if current_user.is_authenticated:
+        user_email = session['name']
+        group_list = groups.query.all()
+        return render_template('groups.html', user_email=user_email, group_list=group_list)
+    else:
+        return '<a class="button" href="/login">Google Login</a>'
+
+
+@app.route("/picks", methods=["POST", "GET"])
+def all_picks():
+    if current_user.is_authenticated:
+        user_email = session['name']
+        user_id = session['id']
+        group_list = groups.query.all()
+        pick_list = picks.query.filter_by(user_id=user_id).all()
+        if request.method == "POST":
+            group_id = request.form['group_id']
+            first_seed = request.form['first_seed']
+            second_seed = request.form['second_seed']
+            if first_seed != '' and second_seed != '':
+                first_seed_id = countries.query.filter_by(name=first_seed).first()._id
+                second_seed_id = countries.query.filter_by(name=second_seed).first()._id
+                if first_seed and second_seed:
+                    old_pick = picks.query.filter_by(user_id=user_id, group_id=group_id).first()
+                    if old_pick:
+                        old_pick.first_seed_id = first_seed_id
+                        old_pick.second_seed_id = second_seed_id
+                    else:
+                        new_pick = picks(first_seed_id=first_seed_id, second_seed_id=second_seed_id, user_id=user_id, group_id=group_id)
+                        db.session.add(new_pick)
+                    db.session.commit()
+        return render_template('your_pick.html', user_email=user_email, user_id=user_id, pick_list=pick_list, group_list=group_list)
     else:
         return '<a class="button" href="/login">Google Login</a>'
 

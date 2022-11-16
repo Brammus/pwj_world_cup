@@ -34,8 +34,19 @@
                 </tr>
                 </tbody>
             </table>
+            <form action="#" method="POST">
+                <input type="text" name="first_seed" placeholder="Enter first seed" value="{{item.get_first_seed(user_id, item._id) if item.get_first_seed(user_id, item._id)}}">
+                <input type="text" name="second_seed" placeholder="Enter second seed" value="{{item.get_second_seed(user_id, item._id) if item.get_second_seed(user_id, item._id)}}">
+                <input type="hidden" name="group_id" value="{{item._id}}">
+                <input type="submit" value="Change picks"/>
+            </form>
         </div>
         {%endfor%}
+    </div>
+    <div class="row">
+        <div class="col">
+
+        </div>
     </div>
 </div>
 {% endblock %}
