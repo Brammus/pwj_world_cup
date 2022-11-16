@@ -1,0 +1,7 @@
+pandas
+flask
+flask_login
+psycopg2
+oauthlib
+requests
+flask_sqlalchemy
