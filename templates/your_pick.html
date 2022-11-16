@@ -4,14 +4,14 @@
 <div class="container">
     <div class="row">
         {%for item in group_list%}
-        <div class="col">
+        <div class="col-3">
             <table class="table">
+                <thead>
+                <th>
+                    Group: {{item.group_name}}
+                </th>
+                </thead>
                 <tbody>
-                <tr>
-                    <td>
-                        Group: {{item.group_name}}
-                    </td>
-                </tr>
                 <tr>
                     <td>
                         {{item.get_country(item.team_1_id)}}
@@ -38,7 +38,7 @@
                 <!--<input type="text" name="first_seed" placeholder="Enter first seed" value="{{item.get_first_seed(user_id, item._id) if item.get_first_seed(user_id, item._id)}}"> -->
                  <select class="form-control" name="first_seed">
                         {%if item.get_first_seed(user_id, item._id)%}
-                        <option selected>{{item.get_first_seed(user_id, item._id)}}</option>
+                        <option value="{{item.get_first_seed(user_id, item._id)._id}}" selected>{{item.get_first_seed(user_id, item._id).name}}</option>
                         {%endif%}
                         <option value="{{item.team_1_id}}">{{item.get_country(item.team_1_id)}}</option>
                         <option value="{{item.team_2_id}}">{{item.get_country(item.team_2_id)}}</option>
@@ -47,7 +47,7 @@
                  </select>
                 <select class="form-control" name="second_seed">
                         {%if item.get_first_seed(user_id, item._id)%}
-                        <option selected>{{item.get_second_seed(user_id, item._id)}}</option>
+                        <option value="{{item.get_second_seed(user_id, item._id)._id}}" selected>{{item.get_second_seed(user_id, item._id).name}}</option>
                         {%endif%}
                         <option value="{{item.team_1_id}}">{{item.get_country(item.team_1_id)}}</option>
                         <option value="{{item.team_2_id}}">{{item.get_country(item.team_2_id)}}</option>
@@ -56,7 +56,7 @@
                 </select>
                 <!--<input type="text" name="second_seed" placeholder="Enter second seed" value="{{item.get_second_seed(user_id, item._id) if item.get_second_seed(user_id, item._id)}}"> -->
                 <input type="hidden" name="group_id" value="{{item._id}}">
-                <input type="submit" value="Change picks"/>
+                <input class="btn btn-primary" type="submit" value="Save picks"/>
             </form>
         </div>
         {%endfor%}
