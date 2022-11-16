@@ -3,12 +3,19 @@
 {% block content %}
 <div class="container">
     <div class="row">
+        <div class="col">
+            <h4>
+                You have to save the groups 1 by 1, be careful!
+            </h4>
+        </div>
+    </div>
+    <div class="row">
         {%for item in group_list%}
         <div class="col-3">
             <table class="table">
                 <thead>
                 <th>
-                    Group: {{item.group_name}}
+                    Group: {{item.group_name}} {%if item.user_picked(user_id, item._id)%} ✅ {%else%} ❌ {%endif%}
                 </th>
                 </thead>
                 <tbody>
@@ -60,11 +67,6 @@
             </form>
         </div>
         {%endfor%}
-    </div>
-    <div class="row">
-        <div class="col">
-
-        </div>
     </div>
 </div>
 {% endblock %}

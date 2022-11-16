@@ -113,6 +113,13 @@ class groups(db.Model):
     team_3_id = db.Column(db.Integer)
     team_4_id = db.Column(db.Integer)
 
+    def user_picked(self, user_id, group_id):
+        user_picks = picks.query.filter_by(user_id=user_id, group_id=group_id).first()
+        if user_picks:
+            return True
+        else:
+            return None
+
     def get_first_seed(self, user_id, group_id):
         first_pick = picks.query.filter_by(user_id=user_id, group_id=group_id).first()
         if first_pick:
@@ -250,7 +257,7 @@ def all_picks():
                         new_pick = picks(first_seed_id=first_seed, second_seed_id=second_seed, user_id=user_id, group_id=group_id)
                         db.session.add(new_pick)
                     db.session.commit()
-            return render_template('your_pick.html', user_email=user_email, user_id=user_id, pick_list=pick_list, group_list=group_list)
+        return render_template('your_pick.html', user_email=user_email, user_id=user_id, pick_list=pick_list, group_list=group_list)
     else:
         return '<a class="button" href="/login">Google Login</a>'
 
