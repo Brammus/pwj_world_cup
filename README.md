@@ -7,3 +7,9 @@ Every member of PWJ will be able to select and lock in their picks for the world
 After each match the scores will be put in and automtically award points to each member.
 
 There will also be a scoreboard of each member and all of their points
+
+
+TODO's:
+1. Login/user management
+2. Put in picks per user for each group
+3. Scoreboard
