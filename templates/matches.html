@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% block title %}Home Page{% endblock %}
+{% block content %}
+<div class="container">
+    <div class="row">
+            <table class="table">
+                <thead>
+                <th>
+                    Date
+                </th>
+                <th>
+                    Team 1
+                </th>
+                <th>
+                    Team 2
+                </th>
+                <th>
+                    Team 1 Goals
+                </th>
+                <th>
+                    Team 2 Goals
+                </th>
+                <th>
+                    Match Played
+                </th>
+                </thead>
+                <tbody>
+                {%for item in match_list%}
+                <tr>
+                    <td>
+                        {{item.match_date}}
+                    </td>
+                    <td>
+                        {{item.get_country(item.team_1_id)}}
+                    </td>
+                    <td>
+                        {{item.get_country(item.team_2_id)}}
+                    </td>
+                    <td>
+                        {{item.team_1_goals}}
+                    </td>
+                    <td>
+                        {{item.team_2_goals}}
+                    </td>
+                    <td>
+                        {%if item.is_played%} ✅ {%else%} ❌ {%endif%}
+                    </td>
+                </tr>
+                {%endfor%}
+                </tbody>
+            </table>
+    </div>
+</div>
+{% endblock %}

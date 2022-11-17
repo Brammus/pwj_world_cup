@@ -97,6 +97,9 @@ class matches(db.Model):
     team_1_goals = db.Column(db.Integer)
     team_2_goals = db.Column(db.Integer)
 
+    def get_country(self, team_id):
+        return countries.query.filter_by(_id=team_id).first().name
+
     def __init__(self, match_date, team_1_id, team_2_id, team_1_goals, team_2_goals):
         self.match_date = match_date
         self.team_1_id = team_1_id
@@ -229,6 +232,16 @@ def all_groups():
         user_email = session['name']
         group_list = groups.query.all()
         return render_template('groups.html', user_email=user_email, group_list=group_list)
+    else:
+        return '<a class="button" href="/login">Google Login</a>'
+
+
+@app.route("/matches")
+def all_matches():
+    if current_user.is_authenticated:
+        user_email = session['name']
+        match_list = matches.query.all()
+        return render_template('matches.html', user_email=user_email, match_list=match_list)
     else:
         return '<a class="button" href="/login">Google Login</a>'
 
