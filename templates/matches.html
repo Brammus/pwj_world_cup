@@ -23,29 +23,67 @@
                 <th>
                     Match Played
                 </th>
+                <th>
+
+                </th>
                 </thead>
                 <tbody>
                 {%for item in match_list%}
-                <tr>
-                    <td>
-                        {{item.match_date}}
-                    </td>
-                    <td>
-                        {{item.get_country(item.team_1_id)}}
-                    </td>
-                    <td>
-                        {{item.get_country(item.team_2_id)}}
-                    </td>
-                    <td>
-                        {{item.team_1_goals}}
-                    </td>
-                    <td>
-                        {{item.team_2_goals}}
-                    </td>
-                    <td>
-                        {%if item.is_played%} ✅ {%else%} ❌ {%endif%}
-                    </td>
-                </tr>
+                <form action="#" method="POST">
+                    <tr>
+                        <td>
+                            {{item.match_date}}
+                        </td>
+                        <td>
+                            {{item.get_country(item.team_1_id)}}
+                        </td>
+                        <td>
+                            {{item.get_country(item.team_2_id)}}
+                        </td>
+                        {%if item.is_played == True%}
+                        <td>
+                            {{item.team_1_goals}}
+                        </td>
+                        <td>
+                            {{item.team_2_goals}}
+                        </td>
+                        <td>
+                            ✅
+                        </td>
+                        <td>
+                            <input type="hidden" name="match_id" value="{{item._id}}">
+<!--                            <input class="btn btn-primary" type="submit" value="Update match"/>-->
+                        </td>
+                        {%else%}
+                        {%if user_id == '106567334648237059170'%}
+                        <td>
+                            <input type="number" name="team_1_goals" placeholder="Enter goals" value="{{item.team_1_goals}}">
+                        </td>
+                        <td>
+                            <input type="number" name="team_2_goals" placeholder="Enter goals" value="{{item.team_2_goals}}">
+                        </td>
+                        {%else%}
+                        <td>
+                            {{item.team_1_goals}}
+                        </td>
+                        <td>
+                            {{item.team_2_goals}}
+                        </td>
+                        {%endif%}
+                        <td>
+                            ❌
+                        </td>
+                        <td>
+                            {%if user_id == '106567334648237059170'%}
+                            <input type="hidden" name="match_id" value="{{item._id}}">
+                            <input class="btn btn-primary" type="submit" value="Update match"/>
+                            {%else%}
+
+                            {%endif%}
+                        </td>
+                        {%endif%}
+                    </tr>
+                </form>
                 {%endfor%}
                 </tbody>
             </table>

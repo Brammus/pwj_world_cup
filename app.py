@@ -96,6 +96,7 @@ class matches(db.Model):
     team_2_id = db.Column(db.Integer)
     team_1_goals = db.Column(db.Integer)
     team_2_goals = db.Column(db.Integer)
+    is_played = db.Column(db.Boolean)
 
     def get_country(self, team_id):
         return countries.query.filter_by(_id=team_id).first().name
@@ -236,12 +237,23 @@ def all_groups():
         return '<a class="button" href="/login">Google Login</a>'
 
 
-@app.route("/matches")
+@app.route("/matches", methods=['POST', 'GET'])
 def all_matches():
     if current_user.is_authenticated:
+        if request.method == "POST":
+            match_id = request.form['match_id']
+            team_1_goals = request.form['team_1_goals']
+            team_2_goals = request.form['team_2_goals']
+            selected_match = matches.query.filter_by(_id=match_id).first()
+            selected_match.is_played = True
+            selected_match.team_1_goals = team_1_goals
+            selected_match.team_2_goals = team_2_goals
+            db.session.commit()
         user_email = session['name']
-        match_list = matches.query.all()
-        return render_template('matches.html', user_email=user_email, match_list=match_list)
+        selected_user_id = users.query.filter_by(name=user_email).first()._id
+        match_list = matches.query.order_by(matches.match_date, matches.is_played).all()
+        return render_template('matches.html', user_email=user_email, match_list=match_list,
+                               user_id=str(selected_user_id))
     else:
         return '<a class="button" href="/login">Google Login</a>'
 
