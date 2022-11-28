@@ -66,10 +66,12 @@ class users(db.Model, UserMixin):
 class countries(db.Model):
     _id = db.Column("id", db.Integer, primary_key=True)
     name = db.Column(db.String(500))
+    flag_name = db.Column(db.String(500))
 
-    def __init__(self, _id, name):
+    def __init__(self, _id, name, flag_name):
         self._id = _id
         self.name = name
+        self.flag_name = flag_name
 
 
 class picks(db.Model):
@@ -98,6 +100,15 @@ class matches(db.Model):
     team_2_goals = db.Column(db.Integer)
     is_played = db.Column(db.Boolean)
 
+    def get_winner(self):
+        if self.is_played:
+            if self.team_1_goals == self.team_2_goals:
+                return 'Draw'
+            elif self.team_1_goals > self.team_2_goals:
+                return self.team_1_id
+            elif self.team_2_goals > self.team_1_goals:
+                return self.team_2_id
+
     def get_country(self, team_id):
         return countries.query.filter_by(_id=team_id).first().name
 
@@ -116,6 +127,24 @@ class groups(db.Model):
     team_2_id = db.Column(db.Integer)
     team_3_id = db.Column(db.Integer)
     team_4_id = db.Column(db.Integer)
+
+
+    def get_played_by_team(self, team_id):
+        matches_played_1 = len(matches.query.filter_by(team_1_id=team_id, is_played=True).all())
+        matches_played_2 = len(matches.query.filter_by(team_2_id=team_id, is_played=True).all())
+        return matches_played_2 + matches_played_1
+
+    def get_points_by_team(self, team_id):
+        points = 0
+        matches_played_1 = matches.query.filter_by(team_1_id=team_id, is_played=True).all()
+        matches_played_2 = matches.query.filter_by(team_2_id=team_id, is_played=True).all()
+        matches_played = matches_played_1 + matches_played_2
+        for match in matches_played:
+            if match.get_winner() == 'Draw':
+                points = points + 1
+            elif match.get_winner() == team_id:
+                points = points + 3
+        return points
 
     def user_picked(self, user_id, group_id):
         user_picks = picks.query.filter_by(user_id=user_id, group_id=group_id).first()
@@ -140,6 +169,9 @@ class groups(db.Model):
 
     def get_country(self, team_id):
         return countries.query.filter_by(_id=team_id).first().name
+
+    def get_flag(self, team_id):
+        return countries.query.filter_by(_id=team_id).first().name.lower()
 
     def get_username_by_id(self, user_id):
         return users.query.filter_by(_id=user_id).first().name
@@ -218,7 +250,7 @@ def login():
 def index():
     if current_user.is_authenticated:
         user_email = session['name']
-        group_list = groups.query.all()
+        group_list = groups.query.order_by().all()
         players_with_picks = users.query.filter_by().all()
         players = []
         user_list = users.query.filter_by().all()

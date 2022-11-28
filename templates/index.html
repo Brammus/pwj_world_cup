@@ -4,12 +4,12 @@
 <div class="container">
     <div class="row">
         <form action="#" method="POST">
-            <select class="form-control" name="user_dropdown">
+            <select name="user_dropdown">
             {%for item in user_list%}
                 <option value="{{item._id}}">{{item.name}}</option>
             {%endfor%}
             </select>
-            <input class="btn btn-primary" type="submit" value="Show picks"/>
+            <input type="submit" value="Show picks"/>
         </form>
     </div>
     <div class="row">
@@ -20,39 +20,73 @@
                     <th>
                         Group: {{item.group_name}}
                     </th>
+                    <th>
+                        Matches
+                    </th>
+                    <th>
+                        Points
+                    </th>
                 </thead>
                 <tbody>
                 <tr>
                     <td>
                         {{item.get_country(item.team_1_id)}}
                     </td>
+                    <td>
+                        {{item.get_played_by_team(item.team_1_id)}}
+                    </td>
+                     <td>
+                        {{item.get_points_by_team(item.team_1_id)}}
+                    </td>
                 </tr>
                 <tr>
                     <td>
                         {{item.get_country(item.team_2_id)}}
+                    </td>
+                    <td>
+                        {{item.get_played_by_team(item.team_2_id)}}
+                    </td>
+                    <td>
+                        {{item.get_points_by_team(item.team_2_id)}}
                     </td>
                 </tr>
                 <tr>
                     <td>
                         {{item.get_country(item.team_3_id)}}
                     </td>
+                    <td>
+                        {{item.get_played_by_team(item.team_3_id)}}
+                    </td>
+                     <td>
+                        {{item.get_points_by_team(item.team_3_id)}}
+                    </td>
                 </tr>
                 <tr>
                     <td>
                         {{item.get_country(item.team_4_id)}}
                     </td>
+                    <td>
+                        {{item.get_played_by_team(item.team_4_id)}}
+                    </td>
+                     <td>
+                        {{item.get_points_by_team(item.team_4_id)}}
+                    </td>
                 </tr>
                 {%if selected_user%}
-                <tr>
-                    <td>
-                        {{item.get_username_by_id(selected_user)}}'s first pick: {{item.get_first_seed(selected_user, item._id).name}}
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        {{item.get_username_by_id(selected_user)}}'s second pick: {{item.get_second_seed(selected_user, item._id).name}}
-                    </td>
-                </tr>
+                <table>
+                    <tbody>
+                    <tr>
+                        <td>
+                            {{item.get_username_by_id(selected_user)}}'s first pick: {{item.get_first_seed(selected_user, item._id).name}}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            {{item.get_username_by_id(selected_user)}}'s second pick: {{item.get_second_seed(selected_user, item._id).name}}
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
                 {%endif%}
                 </tbody>
             </table>
