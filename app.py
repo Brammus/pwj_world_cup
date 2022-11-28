@@ -141,6 +141,9 @@ class groups(db.Model):
     def get_country(self, team_id):
         return countries.query.filter_by(_id=team_id).first().name
 
+    def get_username_by_id(self, user_id):
+        return users.query.filter_by(_id=user_id).first().name
+
     def __init__(self, group_name, team_1_id, team_2_id, team_3_id, team_4_id):
         self.group_name = group_name
         self.team_1_id = team_1_id
@@ -218,11 +221,18 @@ def index():
         group_list = groups.query.all()
         players_with_picks = users.query.filter_by().all()
         players = []
+        user_list = users.query.filter_by().all()
         for player in players_with_picks:
             if player.has_picks() > 0:
                 player_tuple = (player.name, player.has_picks())
                 players.append(player_tuple)
-        return render_template('index.html', user_email=user_email, group_list=group_list, players=players)
+        user_picks = None
+        selected_user = None
+        if request.method == "POST":
+            selected_user = request.form['user_dropdown']
+            user_picks = picks.query.filter_by(user_id=selected_user).all()
+        return render_template('index.html', user_email=user_email, group_list=group_list, players=players,
+                               user_list=user_list, user_picks=user_picks, selected_user=selected_user)
     else:
         return '<a class="button" href="/login">Google Login</a>'
 

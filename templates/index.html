@@ -3,30 +3,15 @@
 {% block content %}
 <div class="container">
     <div class="row">
-        <div class="col"><h3>Players that have picked at least 1 team: dfgfdgdgdfgdfg</h3></div>
+        <form action="#" method="POST">
+            <select class="form-control" name="user_dropdown">
+            {%for item in user_list%}
+                <option value="{{item._id}}">{{item.name}}</option>
+            {%endfor%}
+            </select>
+            <input class="btn btn-primary" type="submit" value="Show picks"/>
+        </form>
     </div>
-    <table class="table">
-        <thead>
-        <th>
-            Player
-        </th>
-        <th>
-            Picks
-        </th>
-        </thead>
-        <tbody>
-        {%for player in players%}
-        <tr>
-            <td>
-                {{player[0]}}
-            </td>
-            <td>
-                {{player[1]}}
-            </td>
-        </tr>
-        {%endfor%}
-        </tbody>
-    </table>
     <div class="row">
         {%for item in group_list%}
         <div class="col-3">
@@ -57,6 +42,18 @@
                         {{item.get_country(item.team_4_id)}}
                     </td>
                 </tr>
+                {%if selected_user%}
+                <tr>
+                    <td>
+                        {{item.get_username_by_id(selected_user)}}'s first pick: {{item.get_first_seed(selected_user, item._id).name}}
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        {{item.get_username_by_id(selected_user)}}'s second pick: {{item.get_second_seed(selected_user, item._id).name}}
+                    </td>
+                </tr>
+                {%endif%}
                 </tbody>
             </table>
         </div>
