@@ -4,11 +4,11 @@
 <div class="container" style="margin-top:20px">
     <div data-cy="page-title" class="css-1knbux5"><div><h1 class="MuiTypography-root MuiTypography-h4 MuiTypography-gutterBottom css-iyyuqi"><strong>Groups</strong></h1></div></div>
 </div>
-<div class="container" style="background-color:white;margin-top:20px;border-radius:14px;border: 1px solid rgb(224, 224, 224);padding: 20px;">
+<div class="container" style="margin-top:20px;border-radius:14px;padding: 20px;background-color:rgb(48,48,48)">
     <form action="#" method="POST">
         <div class="row form-group">
             <div class="input-group">
-                <select name="user_dropdown" class="form-select" width="500px">
+                <select name="user_dropdown" class="form-select" width="500px" style="background-color:rgb(48,48,48);color:white">
                 {%for item in user_list%}
                     {%if selected_user and item._id == selected_user%}
                     <option value="{{item._id}}" selected>{{item.name}}</option>
@@ -18,7 +18,7 @@
 
                 {%endfor%}
                 </select>
-                <input type="submit" value="Show picks" class="form-control">
+                <input type="submit" value="Show picks" class="form-control" style="background-color:rgb(48,48,48);color:white">
             </div>
         </div>
     </form>
@@ -115,7 +115,7 @@
 <div class="container" style="margin-top:20px">
     <div data-cy="page-title" class="css-1knbux5"><div><h1 class="MuiTypography-root MuiTypography-h4 MuiTypography-gutterBottom css-iyyuqi"><strong>Scoreboard</strong></h1></div></div>
 </div>
-<div class="container" style="background-color:white;margin-top:20px;border-radius:14px;border: 1px solid rgb(224, 224, 224);padding: 20px;">
+<div class="container" style="margin-top:20px;border-radius:14px;padding: 20px;background-color:rgb(48,48,48)">
     <div class="row">
         <table class="table">
             <thead>
