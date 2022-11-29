@@ -1,11 +1,11 @@
 <!doctype html>
 <html>
 <head>
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-Zenh87qX5JnK2Jl0vWa8Ck2rdkQ2Bzep5IDxbcnCeuOxjzrPF/et3URy9Bv1WTRi" crossorigin="anonymous">
     <title>{% block title %}{% endblock %}</title>
 </head>
-<body>
-    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+<body style="background-color:rgb(245, 245, 245)">
+    <nav class="navbar navbar-expand-lg navbar-light" style="background-color:white;padding-left:20px;padding-right:20px">
         <a class="navbar-brand" href="/">PWJ World Cup</a>
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
 	     <span class="navbar-toggler-icon"></span>
@@ -21,11 +21,9 @@
                     <li class="nav-item">
                         <a class="nav-link" href="picks">Your picks</a>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link disabled" href="#">Welcome, {{user_email}}</a>
-                    </li>
                 </ul>
                 </div>
+        <span class="navbar-text">Welcome, {{user_email}}</span>
     </nav>
 
     <div class="container-fluid">

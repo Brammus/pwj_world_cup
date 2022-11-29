@@ -1,17 +1,27 @@
 {% extends "base.html" %}
 {% block title %}Home Page{% endblock %}
 {% block content %}
-<div class="container">
-    <div class="row">
-        <form action="#" method="POST">
-            <select name="user_dropdown">
-            {%for item in user_list%}
-                <option value="{{item._id}}">{{item.name}}</option>
-            {%endfor%}
-            </select>
-            <input type="submit" value="Show picks"/>
-        </form>
-    </div>
+<div class="container" style="background-color:white;margin-top:20px;border-radius:14px;border: 1px solid rgb(224, 224, 224);padding: 20px;">
+    <form action="#" method="POST">
+        <div class="row form-group">
+            <div class="input-group">
+                <select name="user_dropdown" class="form-select" width="500px">
+                {%for item in user_list%}
+                    {%if selected_user and item._id == selected_user%}
+                    <option value="{{item._id}}" selected>{{item.name}}</option>
+                    {%else%}
+                    <option value="{{item._id}}">{{item.name}}</option>
+                    {%endif%}
+
+                {%endfor%}
+                </select>
+                <input type="submit" value="Show picks" class="form-control">
+            </div>
+        </div>
+    </form>
+<!--    <div class="alert alert-primary" role="alert" style="width:98%;margin-left:10px">-->
+<!--        <span>Now showing {{user_email}}'s picks.</span>-->
+<!--    </div>-->
     <div class="row">
         {%for item in group_list%}
         <div class="col-3">
@@ -73,18 +83,25 @@
                     </td>
                 </tr>
                 {%if selected_user%}
-                <table>
+                <table class="table table-borderless">
+                    <thead>
+                    <th>
+                        <strong>First pick</strong>
+                    </th>
+                    <th>
+                        <strong>Second pick</strong>
+                    </th>
+                    </thead>
                     <tbody>
                     <tr>
                         <td>
-                            {{item.get_username_by_id(selected_user)}}'s first pick: {{item.get_first_seed(selected_user, item._id).name}}
+                            {{item.get_first_seed(selected_user, item._id).name}}
                         </td>
-                    </tr>
-                    <tr>
                         <td>
-                            {{item.get_username_by_id(selected_user)}}'s second pick: {{item.get_second_seed(selected_user, item._id).name}}
+                            {{item.get_second_seed(selected_user, item._id).name}}
                         </td>
                     </tr>
+
                     </tbody>
                 </table>
                 {%endif%}
