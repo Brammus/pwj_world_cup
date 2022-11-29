@@ -50,6 +50,43 @@ class users(db.Model, UserMixin):
     email = db.Column(db.String(500))
     name = db.Column(db.String(500))
 
+    def calc_points(self):
+        # 3 points for 2 correct teams + order
+        # 2 points for 2 correct teams + incorrect order
+        # 1 point for 1 correct team in any order.
+        points = None
+        if len(picks.query.filter_by(user_id=self._id).all()) == 8:
+            points = 0
+            all_groups = groups.query.all()
+            for group in all_groups:
+                played = 0
+                teams = [group.team_1_id, group.team_2_id, group.team_3_id, group.team_4_id]
+                for team in teams:
+                    played += group.get_played_by_team(team)
+                if played == 12:
+                    first_pick = picks.query.filter_by(user_id=self._id, group_id=group._id).first().first_seed_id
+                    second_pick = picks.query.filter_by(user_id=self._id, group_id=group._id).first().second_seed_id
+                    team_1_points = group.get_points_by_team(group.team_1_id)
+                    team_2_points = group.get_points_by_team(group.team_2_id)
+                    team_3_points = group.get_points_by_team(group.team_3_id)
+                    team_4_points = group.get_points_by_team(group.team_4_id)
+                    team_1_tuple = (group.team_1_id, team_1_points)
+                    team_2_tuple = (group.team_2_id, team_2_points)
+                    team_3_tuple = (group.team_3_id, team_3_points)
+                    team_4_tuple = (group.team_4_id, team_4_points)
+                    team_tuples = [team_1_tuple, team_2_tuple, team_3_tuple, team_4_tuple]
+                    first_seed_tuple = max(team_tuples, key=lambda item: item[1])
+                    first_seed = first_seed_tuple[0]
+                    team_tuples.remove(first_seed_tuple)
+                    second_seed = max(team_tuples, key=lambda item: item[1])[0]
+                    if first_pick == first_seed and second_pick == second_seed:
+                        points += 3
+                    elif first_pick == second_seed and second_pick == first_seed:
+                        points += 2
+                    elif first_pick == first_seed or first_pick == second_seed or second_pick == first_seed or second_pick == second_seed:
+                        points +=1
+        return points
+
     def has_picks(self):
         has_pick = picks.query.filter_by(user_id=self._id).count()
         return has_pick
@@ -260,11 +297,20 @@ def index():
                 players.append(player_tuple)
         user_picks = None
         selected_user = None
+
+        user_list_scores = []
+        for item in user_list:
+            points = item.calc_points()
+            if points:
+                user_tuple = (item.name, points)
+                user_list_scores.append(user_tuple)
+        user_list_scores.sort(key=lambda x: x[1], reverse=True)
         if request.method == "POST":
             selected_user = request.form['user_dropdown']
             user_picks = picks.query.filter_by(user_id=selected_user).all()
         return render_template('index.html', user_email=user_email, group_list=group_list, players=players,
-                               user_list=user_list, user_picks=user_picks, selected_user=selected_user)
+                               user_list=user_list, user_picks=user_picks, selected_user=selected_user,
+                               user_list_scores=user_list_scores)
     else:
         return '<a class="button" href="/login">Google Login</a>'
 
