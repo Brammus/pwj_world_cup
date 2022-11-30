@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% block title %}Home Page{% endblock %}
+{% block content %}
+<div class="container">
+    <div class="row">
+        <form action="#" method="POST">
+            <input type="text" name="match_date" placeholder="Enter date" value="">
+             <select class="form-control" name="first_team">
+                 {%for item in country_list%}
+                    <option value="{{item._id}}">{{item.name}}</option>
+                 {%endfor%}
+             </select>
+            <select class="form-control" name="second_team">
+                 {%for item in country_list%}
+                    <option value="{{item._id}}">{{item.name}}</option>
+                 {%endfor%}
+             </select>
+            <input class="btn btn-primary" type="submit" value="Add match"/>
+        </form>
+    </div>
+    <div class="row">
+        <table>
+            <thead>
+            <th>
+                Team 1
+            </th>
+            <th>
+                Team 2
+            </th>
+            <th>
+                Date
+            </th>
+            </thead>
+            <tbody>
+            {%for item in match_list%}
+            <tr>
+                <td>
+                    {{item.get_country_1()}}
+                </td>
+                <td>
+                    {{item.get_country_2()}}
+                </td>
+                <td>
+                    {{item.match_date}}
+                </td>
+            </tr>
+            {%endfor%}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

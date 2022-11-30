@@ -100,6 +100,44 @@ class users(db.Model, UserMixin):
         self.name = name
 
 
+class knockout_matches(db.Model):
+    _id = db.Column("id", db.Integer, primary_key=True)
+    team_1_id = db.Column(db.Integer)
+    team_2_id = db.Column(db.Integer)
+    winner = db.Column(db.Integer)
+    is_played = db.Column(db.Boolean)
+    match_date = db.Column(db.Date)
+
+    def get_country_1(self):
+        return countries.query.filter_by(_id=self.team_1_id).first().name
+
+    def get_country_2(self):
+        return countries.query.filter_by(_id=self.team_2_id).first().name
+
+    def __init__(self, team_1_id, team_2_id, winner, is_played, match_date):
+        self.team_1_id = team_1_id
+        self.team_2_id = team_2_id
+        self.winner = winner
+        self.is_played = is_played
+        self.match_date = match_date
+
+
+class knockout_picks(db.Model):
+    _id = db.Column("id", db.Integer, primary_key=True)
+    knockout_match_id = db.Column(db.Integer)
+    user_id = db.Column(db.String(500))
+    winner = db.Column(db.Integer)
+
+    def __init__(self, knockout_match_id, user_id, winner):
+        self.knockout_match_id = knockout_match_id
+        self.user_id = user_id
+        self.winner = winner
+    # def __init__(self, knockout_match_id, user_id, winner):
+    #     self.knockout_match_id = knockout_match_id
+    #     self.winner = winner
+    #     self.user_id = user_id
+
+
 class countries(db.Model):
     _id = db.Column("id", db.Integer, primary_key=True)
     name = db.Column(db.String(500))
@@ -321,6 +359,48 @@ def all_groups():
         user_email = session['name']
         group_list = groups.query.all()
         return render_template('groups.html', user_email=user_email, group_list=group_list)
+    else:
+        return '<a class="button" href="/login">Google Login</a>'
+
+
+@app.route("/knockout_stage", methods=["POST", "GET"])
+def knockout_stage():
+    if current_user.is_authenticated:
+        user_email = session['name']
+        country_list = countries.query.all()
+        match_list = knockout_matches.query.all()
+
+        if request.method == "POST":
+            team_1_id = str(request.form['first_team'])
+            team_2_id = str(request.form['second_team'])
+            match_date = request.form['match_date']
+            winner = 0
+            new_match = knockout_matches(team_1_id, team_2_id, winner, False, match_date)
+            db.session.add(new_match)
+            db.session.commit()
+        return render_template('knockout_stage.html', user_email=user_email, country_list=country_list,
+                               match_list=match_list)
+    else:
+        return '<a class="button" href="/login">Google Login</a>'
+
+
+@app.route("/knockout_pick", methods=["POST", "GET"])
+def knockout_pick():
+    if current_user.is_authenticated:
+        user_email = session['name']
+        country_list = countries.query.all()
+        date_today = datetime.date(datetime.today())
+        match_list = knockout_matches.query.all()
+
+        if request.method == "POST":
+            user_id = session['id']
+            match_id = int(request.form['match_id'])
+            winner = int(request.form['winner'])
+            idk = knockout_picks(match_id, user_id, winner)
+            db.session.add(idk)
+            db.session.commit()
+        return render_template('knockout_pick.html', user_email=user_email, country_list=country_list,
+                               match_list=match_list, date_today=date_today)
     else:
         return '<a class="button" href="/login">Google Login</a>'
 

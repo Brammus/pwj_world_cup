@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% block title %}Home Page{% endblock %}
+{% block content %}
+<div class="container">
+    <div class="row">
+        <table>
+            <thead>
+            <th>
+                Team 1
+            </th>
+            <th>
+                Team 2
+            </th>
+            <th>
+                Date
+            </th>
+            <th>
+                Winner
+            </th>
+            </thead>
+            <tbody>
+            {%for item in match_list%}
+            <tr>
+                <td>
+                    {{item.get_country_1()}}
+                </td>
+                <td>
+                    {{item.get_country_2()}}
+                </td>
+                <td>
+                    {{item.match_date}}
+                </td>
+                <td>
+                    {%if item.match_date > date_today%}
+                    <form action="#" method="POST">
+                         <select class="form-control" name="winner">
+                            <option value="{{item.team_1_id}}">{{item.get_country_1()}}</option>
+                            <option value="{{item.team_2_id}}">{{item.get_country_2()}}</option>
+                         </select>
+                        <input type="hidden" name="match_id" value="{{item._id}}">
+                        <input class="btn btn-primary" type="submit" value="Add pick"/>
+                    </form>
+                    {%endif%}
+                </td>
+            </tr>
+            {%endfor%}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
