@@ -8,7 +8,7 @@
     <form action="#" method="POST">
         <div class="row form-group">
             <div class="input-group">
-                <select name="user_dropdown" class="form-select" width="500px" style="background-color:rgb(48,48,48);color:white">
+                <select name="user_dropdown" class="form-select" width="500px" style="background-color:rgb(48,48,48);color:white;border-color:white">
                 {%for item in user_list%}
                     {%if selected_user and item._id == selected_user%}
                     <option value="{{item._id}}" selected>{{item.name}}</option>
@@ -18,7 +18,7 @@
 
                 {%endfor%}
                 </select>
-                <input type="submit" value="Show picks" class="form-control" style="background-color:rgb(48,48,48);color:white">
+                <input type="submit" value="Show picks" class="form-control" style="background-color:rgb(48,48,48);color:white;color:white;border-color:white">
             </div>
         </div>
     </form>
