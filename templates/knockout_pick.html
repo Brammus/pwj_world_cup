@@ -3,6 +3,11 @@
 {% block content %}
 <div class="container">
     <div class="row">
+        <div class="alert alert-danger" role="alert">
+          You can only lock in picks once, please be careful!
+        </div>
+    </div>
+    <div class="row">
         <table>
             <thead>
             <th>
@@ -31,6 +36,9 @@
                     {{item.match_date}}
                 </td>
                 <td>
+                    {%if item.user_picked(user_id)%}
+                    <span>{{item.get_pick_by_user(user_id)}}</span>
+                    {%else%}
                     {%if item.match_date > date_today%}
                     <form action="#" method="POST">
                          <select class="form-control" name="winner">
@@ -40,6 +48,7 @@
                         <input type="hidden" name="match_id" value="{{item._id}}">
                         <input class="btn btn-primary" type="submit" value="Add pick"/>
                     </form>
+                    {%endif%}
                     {%endif%}
                 </td>
             </tr>

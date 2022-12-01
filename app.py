@@ -108,6 +108,16 @@ class knockout_matches(db.Model):
     is_played = db.Column(db.Boolean)
     match_date = db.Column(db.Date)
 
+    def user_picked(self, user_id):
+        if len(knockout_picks.query.filter_by(user_id=user_id, knockout_match_id=self._id).all()):
+            return True
+        else:
+            return False
+
+    def get_pick_by_user(self, user_id):
+        return countries.query.filter_by(_id=knockout_picks.query.filter_by(user_id=user_id, knockout_match_id=self._id).first().winner).first().name
+
+
     def get_country_1(self):
         return countries.query.filter_by(_id=self.team_1_id).first().name
 
@@ -325,6 +335,8 @@ def login():
 def index():
     if current_user.is_authenticated:
         user_email = session['name']
+        user_picks_2 = len(knockout_picks.query.filter_by(user_id=session['id']).all())
+        available_matches = len(knockout_matches.query.all())
         group_list = groups.query.order_by().all()
         players_with_picks = users.query.filter_by().all()
         players = []
@@ -348,7 +360,8 @@ def index():
             user_picks = picks.query.filter_by(user_id=selected_user).all()
         return render_template('index.html', user_email=user_email, group_list=group_list, players=players,
                                user_list=user_list, user_picks=user_picks, selected_user=selected_user,
-                               user_list_scores=user_list_scores)
+                               user_list_scores=user_list_scores, user_picks_2=user_picks_2,
+                               available_matches=available_matches)
     else:
         return '<a class="button" href="/login">Google Login</a>'
 
@@ -391,16 +404,15 @@ def knockout_pick():
         country_list = countries.query.all()
         date_today = datetime.date(datetime.today())
         match_list = knockout_matches.query.all()
-
+        user_id = session['id']
         if request.method == "POST":
-            user_id = session['id']
             match_id = int(request.form['match_id'])
             winner = int(request.form['winner'])
             idk = knockout_picks(match_id, user_id, winner)
             db.session.add(idk)
             db.session.commit()
         return render_template('knockout_pick.html', user_email=user_email, country_list=country_list,
-                               match_list=match_list, date_today=date_today)
+                               match_list=match_list, date_today=date_today, user_id=user_id)
     else:
         return '<a class="button" href="/login">Google Login</a>'
 

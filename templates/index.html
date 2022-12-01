@@ -1,6 +1,13 @@
 {% extends "base.html" %}
 {% block title %}Home Page{% endblock %}
 {% block content %}
+{%if user_picks_2 < available_matches %}
+<div class="container">
+    <div class="alert alert-danger" role="alert">
+      Check the <a href="/knockout_pick">Your picks</a> page if you haven't yet, you can only pick a team until the day before the match! You have so far picked for {{user_picks_2}}/{{available_matches}} matches.
+    </div>
+</div>
+{%endif%}
 <div class="container" style="margin-top:20px">
     <div data-cy="page-title" class="css-1knbux5"><div><h1 class="MuiTypography-root MuiTypography-h4 MuiTypography-gutterBottom css-iyyuqi"><strong>Groups</strong></h1></div></div>
 </div>
