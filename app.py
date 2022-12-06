@@ -36,7 +36,7 @@ app.config["SQLALCHEMY_DATABASE_URI"] = DATABASE_URI
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 app.permanent_session_lifetime = timedelta(minutes=20)
 app.secret_key = 'cactus'
-
+app.permanent_session_lifetime = timedelta(minutes=2000000)
 db = SQLAlchemy(app)
 
 
@@ -50,13 +50,22 @@ class users(db.Model, UserMixin):
     email = db.Column(db.String(500))
     name = db.Column(db.String(500))
 
+    def knockout_points(self):
+        points = 0
+        all_picks_k = knockout_picks.query.filter_by(user_id=self._id).all()
+        for p in all_picks_k:
+            knockout_match = knockout_matches.query.filter_by(_id=p.knockout_match_id).first()
+            if knockout_match.is_played == True:
+                if p.winner == knockout_match.winner:
+                    points += 1
+        return points
+
     def calc_points(self):
         # 3 points for 2 correct teams + order
         # 2 points for 2 correct teams + incorrect order
         # 1 point for 1 correct team in any order.
-        points = None
+        points = 0
         if len(picks.query.filter_by(user_id=self._id).all()) == 8:
-            points = 0
             all_groups = groups.query.all()
             for group in all_groups:
                 played = 0
@@ -66,10 +75,10 @@ class users(db.Model, UserMixin):
                 if played == 12:
                     first_pick = picks.query.filter_by(user_id=self._id, group_id=group._id).first().first_seed_id
                     second_pick = picks.query.filter_by(user_id=self._id, group_id=group._id).first().second_seed_id
-                    team_1_points = group.get_points_by_team(group.team_1_id)
-                    team_2_points = group.get_points_by_team(group.team_2_id)
-                    team_3_points = group.get_points_by_team(group.team_3_id)
-                    team_4_points = group.get_points_by_team(group.team_4_id)
+                    team_1_points = group.team_1_points
+                    team_2_points = group.team_2_points
+                    team_3_points = group.team_3_points
+                    team_4_points = group.team_4_points
                     team_1_tuple = (group.team_1_id, team_1_points)
                     team_2_tuple = (group.team_2_id, team_2_points)
                     team_3_tuple = (group.team_3_id, team_3_points)
@@ -79,12 +88,13 @@ class users(db.Model, UserMixin):
                     first_seed = first_seed_tuple[0]
                     team_tuples.remove(first_seed_tuple)
                     second_seed = max(team_tuples, key=lambda item: item[1])[0]
+
                     if first_pick == first_seed and second_pick == second_seed:
                         points += 3
                     elif first_pick == second_seed and second_pick == first_seed:
                         points += 2
                     elif first_pick == first_seed or first_pick == second_seed or second_pick == first_seed or second_pick == second_seed:
-                        points +=1
+                        points += 1
         return points
 
     def has_picks(self):
@@ -117,6 +127,8 @@ class knockout_matches(db.Model):
     def get_pick_by_user(self, user_id):
         return countries.query.filter_by(_id=knockout_picks.query.filter_by(user_id=user_id, knockout_match_id=self._id).first().winner).first().name
 
+    def get_winner_country(self):
+        return countries.query.filter_by(_id=self.winner).first().name
 
     def get_country_1(self):
         return countries.query.filter_by(_id=self.team_1_id).first().name
@@ -212,7 +224,10 @@ class groups(db.Model):
     team_2_id = db.Column(db.Integer)
     team_3_id = db.Column(db.Integer)
     team_4_id = db.Column(db.Integer)
-
+    team_1_points = db.Column(db.Integer)
+    team_2_points = db.Column(db.Integer)
+    team_3_points = db.Column(db.Integer)
+    team_4_points = db.Column(db.Integer)
 
     def get_played_by_team(self, team_id):
         matches_played_1 = len(matches.query.filter_by(team_1_id=team_id, is_played=True).all())
@@ -337,31 +352,38 @@ def index():
         user_email = session['name']
         user_picks_2 = len(knockout_picks.query.filter_by(user_id=session['id']).all())
         available_matches = len(knockout_matches.query.all())
-        group_list = groups.query.order_by().all()
-        players_with_picks = users.query.filter_by().all()
-        players = []
+
         user_list = users.query.filter_by().all()
-        for player in players_with_picks:
-            if player.has_picks() > 0:
-                player_tuple = (player.name, player.has_picks())
-                players.append(player_tuple)
         user_picks = None
-        selected_user = None
+        selected_user = session['id']
+        if request.method == "POST":
+            selected_user = request.form['user_dropdown']
+            user_picks = picks.query.filter_by(user_id=selected_user).all()
+
+        knockout_match_list = knockout_matches.query.all()
+        knockout_list = []
+        for k in knockout_match_list:
+            picked = knockout_picks.query.filter_by(user_id=selected_user, knockout_match_id=k._id).first()
+            picked_country = "Not picked yet"
+            if picked:
+                picked_country = countries.query.filter_by(_id=picked.winner).first().name
+            k_tuple = (k, picked_country)
+            knockout_list.append(k_tuple)
 
         user_list_scores = []
         for item in user_list:
             points = item.calc_points()
+            points_knockout = item.knockout_points()
+            points_total = points_knockout + points
             if points:
-                user_tuple = (item.name, points)
+                user_tuple = (item.name, points, points_knockout, points_total)
                 user_list_scores.append(user_tuple)
-        user_list_scores.sort(key=lambda x: x[1], reverse=True)
-        if request.method == "POST":
-            selected_user = request.form['user_dropdown']
-            user_picks = picks.query.filter_by(user_id=selected_user).all()
-        return render_template('index.html', user_email=user_email, group_list=group_list, players=players,
-                               user_list=user_list, user_picks=user_picks, selected_user=selected_user,
-                               user_list_scores=user_list_scores, user_picks_2=user_picks_2,
-                               available_matches=available_matches)
+        user_list_scores.sort(key=lambda x: x[3], reverse=True)
+        knockout_list.sort(key=lambda x: x[0].match_date, reverse=False)
+        return render_template('index.html', user_email=user_email, knockout_list=knockout_list,
+                               user_picks_2=user_picks_2, user_list=user_list, user_picks=user_picks,
+                               selected_user=selected_user, available_matches=available_matches,
+                               user_list_scores=user_list_scores)
     else:
         return '<a class="button" href="/login">Google Login</a>'
 

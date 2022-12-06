@@ -12,6 +12,7 @@
     <div data-cy="page-title" class="css-1knbux5"><div><h1 class="MuiTypography-root MuiTypography-h4 MuiTypography-gutterBottom css-iyyuqi"><strong>Groups</strong></h1></div></div>
 </div>
 <div class="container" style="margin-top:20px;border-radius:14px;padding: 20px;background-color:rgb(48,48,48)">
+    {%if user_picks_2 == available_matches %}
     <form action="#" method="POST">
         <div class="row form-group">
             <div class="input-group">
@@ -29,94 +30,72 @@
             </div>
         </div>
     </form>
-
+    {%endif%}
     <div class="row">
-        {%for item in group_list%}
-        <div class="col-3">
+        <div class="col">
             <table class="table">
                 <thead>
                     <th>
-                        Group: {{item.group_name}}
+                        Team 1
                     </th>
                     <th>
-                        Matches
+                        Team 2
                     </th>
                     <th>
-                        Points
+                        Winner
+                    </th>
+                    <th>
+                        Picked winner
+                    </th>
+                    <th>
+                        Date
                     </th>
                 </thead>
                 <tbody>
+                {%for item in knockout_list%}
                 <tr>
                     <td>
-                        {{item.get_country(item.team_1_id)}}
+                        {{item[0].get_country_1()}}
                     </td>
                     <td>
-                        {{item.get_played_by_team(item.team_1_id)}}
+                        {{item[0].get_country_2()}}
                     </td>
+                    <td>
+                        {%if item[0].is_played == True%}
+                            {{item[0].get_winner_country()}}
+                        {%else%}
+                            Not played yet
+                        {%endif%}
+                    </td>
+                    {%if item[0].is_played == True%}
+                        {%if item[1] == "Not picked yet"%}
+                            <td>
+                                {{item[1]}}
+                            </td>
+                        {%else%}
+                            {%if item[1] == item[0].get_winner_country()%}
+                                <td style="background-color:green">
+                                    {{item[1]}}
+                                </td>
+                            {%else%}
+                                <td style="background-color:red">
+                                    {{item[1]}}
+                                </td>
+                            {%endif%}
+                        {%endif%}
+                    {%else%}
+                    <td>
+                        Not played yet
+                    </td>
+                    {%endif%}
                      <td>
-                        {{item.get_points_by_team(item.team_1_id)}}
+                        {{item[0].match_date}}
                     </td>
                 </tr>
-                <tr>
-                    <td>
-                        {{item.get_country(item.team_2_id)}}
-                    </td>
-                    <td>
-                        {{item.get_played_by_team(item.team_2_id)}}
-                    </td>
-                    <td>
-                        {{item.get_points_by_team(item.team_2_id)}}
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        {{item.get_country(item.team_3_id)}}
-                    </td>
-                    <td>
-                        {{item.get_played_by_team(item.team_3_id)}}
-                    </td>
-                     <td>
-                        {{item.get_points_by_team(item.team_3_id)}}
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        {{item.get_country(item.team_4_id)}}
-                    </td>
-                    <td>
-                        {{item.get_played_by_team(item.team_4_id)}}
-                    </td>
-                     <td>
-                        {{item.get_points_by_team(item.team_4_id)}}
-                    </td>
-                </tr>
-                {%if selected_user%}
-                <table class="table table-borderless">
-                    <thead>
-                    <th>
-                        <strong>First pick</strong>
-                    </th>
-                    <th>
-                        <strong>Second pick</strong>
-                    </th>
-                    </thead>
-                    <tbody>
-                    <tr>
-                        <td>
-                            {{item.get_first_seed(selected_user, item._id).name}}
-                        </td>
-                        <td>
-                            {{item.get_second_seed(selected_user, item._id).name}}
-                        </td>
-                    </tr>
-
-                    </tbody>
-                </table>
-                {%endif%}
+                {%endfor%}
                 </tbody>
             </table>
         </div>
-        {%endfor%}
     </div>
 </div>
 <div class="container" style="margin-top:20px">
@@ -130,7 +109,13 @@
                 User
             </th>
             <th>
-                Points
+                Points groups
+            </th>
+            <th>
+                Points knockout
+            </th>
+            <th>
+                Points total
             </th>
             </thead>
             <tbody>
@@ -141,6 +126,12 @@
                     </td>
                     <td>
                         {{item[1]}}
+                    </td>
+                    <td>
+                        {{item[2]}}
+                    </td>
+                    <td>
+                        {{item[3]}}
                     </td>
                 </tr>
             {%endfor%}
