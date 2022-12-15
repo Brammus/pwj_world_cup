@@ -57,7 +57,12 @@ class users(db.Model, UserMixin):
             knockout_match = knockout_matches.query.filter_by(_id=p.knockout_match_id).first()
             if knockout_match.is_played == True:
                 if p.winner == knockout_match.winner:
-                    points += 1
+                    if knockout_match.match_date > datetime(2022, 12, 11).date():
+                        points += 2
+                    elif knockout_match.match_date > datetime(2022, 12, 15).date():
+                        points += 4
+                    else:
+                        points += 1
         return points
 
     def calc_points(self):
